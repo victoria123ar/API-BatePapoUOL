@@ -13,28 +13,29 @@ app.use(cors());
 
 const port = 5000;
 
-let participantesArray = joi.object({ name: joi.string().required().min(1) });
+let participantesArray = joi.object({ name: joi.string().required().min(3) });
 let mensagensArray = joi.object({
   from: joi.string().required(),
-  to: joi.string().required().min(1),
+  to: joi.string().required().min(3),
   text: joi.string().required().min(1),
   type: joi.string().required().valid("message", "private_message"),
   time: joi.string(),
 });
 
 //const url = process.env.DATABASE_URL;
-const url = 'mongodb://localhost:27017/batepapouol'
+const url = "mongodb://127.0.0.1:27017/batepapouol";
 
-mongoose.connect(url);
-console.log(url)
+mongoose.set("strictQuery", false);
+mongoose.connect(url, { useNewUrlParser: true });
 
-let db = mongoose.connection;
-
-db.once("open", () => {
+const db = mongoose.connection;
+db.once("open", (_) => {
   console.log("Database conectada:", url);
 });
 
-db.on("error", console.log("Erro de conexão"));
+db.on("error", (err) => {
+  console.error("Error ao conectar na Database:", err);
+});
 
 const participantsCollection = db.collection("participants");
 const messagesCollection = db.collection("messages");
@@ -170,10 +171,7 @@ app.post("/status", async (req, res) => {
 });
 
 setInterval(async () => {
-
   const segundos = Date.now() - 10000;
-  console.log(Date.now());
-  console.log(segundos);
 
   try {
     const participanteInativo = await participantsCollection
