@@ -34,7 +34,7 @@ db.once("open", (_) => {
 });
 
 db.on("error", (err) => {
-  console.error("Error ao conectar na Database:", err);
+  console.error("Erro ao conectar na Database:", err);
 });
 
 const participantsCollection = db.collection("participants");
