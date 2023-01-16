@@ -22,14 +22,12 @@ let mensagensArray = joi.object({
   time: joi.string(),
 });
 
-//const url = process.env.DATABASE_URL;
-const url = "mongodb://127.0.0.1:27017/batepapouol";
-
+const url = process.env.DATABASE_URL;
 mongoose.set("strictQuery", false);
 mongoose.connect(url, { useNewUrlParser: true });
 
 const db = mongoose.connection;
-db.once("open", (_) => {
+db.once("open", () => {
   console.log("Database conectada:", url);
 });
 
