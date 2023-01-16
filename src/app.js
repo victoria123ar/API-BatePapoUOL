@@ -138,7 +138,7 @@ app.get("/messages", async (req, res) => {
 
     const limit = Number(req.query.limit);
 
-    if(limit <= 0 || typeof limit == "string" )
+    if(limit <= 0 || limit === NaN )
     {
       return res.sendStatus(422)
     }
@@ -177,7 +177,7 @@ app.get("/messages", async (req, res) => {
     let retorno = []
     mensagens.forEach(el =>
     {
-      retorno.push({ to: el.to, text: el.text, type: el.type, from: el.from })
+      retorno.push({ to: el.to, text: el.text, type: el.type, from: el.from, time: el.time })
     });
 
      //retorno.forEach(el =>{console.log(el)});
