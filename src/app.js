@@ -175,7 +175,7 @@ app.get("/messages", async (req, res) => {
     }
 
     let retorno = []
-    mensagens.forEach(el =>
+    mensagens.reverse().forEach(el =>
     {
       retorno.push({ to: el.to, text: el.text, type: el.type, from: el.from, time: el.time })
     });
