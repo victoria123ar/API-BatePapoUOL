@@ -144,7 +144,7 @@ app.get("/messages", async (req, res) => {
       res.sendStatus(422)
     }
 
-    res.status(200).send(mensagens.to, mensagens.text, mensagens.type, mensagens.from);
+    res.status(200).send(messagesCollection.to, messagesCollection.text, messagesCollection.type, messagesCollection.from).limit(limit).toArray();
     
   } catch (err) {
     console.log(err);
