@@ -137,42 +137,13 @@ app.get("/messages", async (req, res) => {
 
     const limit = Number(req.query.limit);
 
-    /*if(limit <= 0 || limit === NaN )
+    let FindOptions = {sort: {time: -1}}
+    if (!existeLimite) 
     {
-      return res.sendStatus(422)
-    }
-
-    if(existeLimite)
-    {
-      mensagens = await messagesCollection
-      .find({
-        $or: [
-          { to: "Todos" },
-          { to: user },
-          { from: user },
-        ]
-      }) 
-      .limit(limit)
-      .toArray();
-    }
-    else
-    {
-      mensagens = await messagesCollection
-      .find({
-        $or: [
-          { to: "Todos" },
-          { to: user },
-          { from: user },
-        ]
-      })
-      .toArray();
-    }*/
-
-    if (!existeLimite) {
       mensagens = await messagesCollection
         .find({
           $or: [{ to: "Todos" }, { to: user }, { from: user }],
-        })
+        },FindOptions)
         .toArray();
     }
 
@@ -180,7 +151,7 @@ app.get("/messages", async (req, res) => {
       mensagens = await messagesCollection
         .find({
           $or: [{ to: "Todos" }, { to: user }, { from: user }],
-        })
+        },FindOptions)
         .limit(limit)
         .toArray();
     } else {
@@ -192,7 +163,7 @@ app.get("/messages", async (req, res) => {
     }
 
     let retorno = [];
-    mensagens.reverse().forEach((el) => {
+    mensagens.forEach((el) => {
       retorno.push({
         to: el.to,
         text: el.text,
