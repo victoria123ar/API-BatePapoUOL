@@ -137,7 +137,7 @@ app.get("/messages", async (req, res) => {
 
     const limit = Number(req.query.limit);
 
-    let FindOptions = {sort: {time: 1}}
+    let FindOptions = {sort: {time: -1}}
     if (!existeLimite) 
     {
       mensagens = await messagesCollection
