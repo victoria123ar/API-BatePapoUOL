@@ -54,7 +54,8 @@ app.post("/participants", async (req, res) => {
     const participanteExistente = await participantsCollection.findOne({
       name,
     });
-    if (participanteExistente) {
+    if (participanteExistente) 
+    {
       return res.sendStatus(409);
     }
 
@@ -107,7 +108,10 @@ app.post("/messages", async (req, res) => {
       const errors = error.details.map((detail) => detail.message);
       return res.status(422).send(errors);
     }
-    if (!user === messagesCollection) {
+
+    const QtdDocuments = await participantsCollection.countDocuments({ name: user });
+    if(QtdDocuments == 0)
+    {
       res.sendStatus(422);
     }
 
@@ -121,42 +125,48 @@ app.post("/messages", async (req, res) => {
 });
 
 app.get("/messages", async (req, res) => {
-  const { user } = req.headers;
-  const limit = Number(req.query.limit);
-
-  if (limit <= 0 || typeof limit !== "string") {
-    return res.sendStatus(422);
-  }
-
   try {
-    const mensagens = await db.collection('messages')
-      .find({
-        $or: [
-          { to: { $in: [user, "Todos"] } },
-          { type: "message" },
-          { from: user },
-        ],
-      })
-      .limit(limit)
-      .toArray();
+    const { user } = req.headers;
+    const limit = Number(req.query.limit);
 
-    if (mensagens.length === 0) {
-      return res.status(404).send("Nenhuma mensagem encontrada");
+    if(limit <= 0 || typeof limit == "string" || !limit)
+    {
+      return res.sendStatus(422)
     }
 
-    res
-      .status(200)
-      .send(
-        mensagensArray.to,
-        mensagensArray.text,
-        mensagensArray.type,
-        mensagensArray.from
-      );
-      
-  } catch (err) {
+    const mensagens = await messagesCollection
+      .find({
+        $or: [
+          { to: "Todos" },
+          { to: user },
+          { from: user },
+        ]
+      }) 
+      .limit(limit) 
+      .toArray();
+
+      if (mensagens.length === 0) 
+      {
+        return res.status(404).send("Nenhuma mensagem encontrada");
+      }
+
+     let retorno = []
+     mensagens.forEach(el =>
+     {
+        retorno.push({ to: el.to, text: el.text, type: el.type, from: el.from })
+     });
+
+     //retorno.forEach(el =>{console.log(el)});
+     
+    
+    return res.status(200).send(JSON.stringify(retorno));
+    
+  } catch (err) 
+  {
     console.log(err);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
+
 });
 
 app.post("/status", async (req, res) => {
