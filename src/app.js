@@ -107,7 +107,7 @@ app.post("/messages", async (req, res) => {
       const errors = error.details.map((detail) => detail.message);
       return res.status(422).send(errors);
     }
-    if(!user === messagesCollection){
+    if (!user === messagesCollection) {
       res.sendStatus(422);
     }
 
@@ -125,7 +125,7 @@ app.get("/messages", async (req, res) => {
   const limit = Number(req.query.limit);
 
   try {
-    const mensagens = await messagesCollection
+    const mensagens = await db.collection('messages')
       .find({
         $or: [
           { to: { $in: [user, "Todos"] } },
@@ -140,12 +140,19 @@ app.get("/messages", async (req, res) => {
       return res.status(404).send("Nenhuma mensagem encontrada");
     }
 
-    if(limit <=0){
-      res.sendStatus(422)
+    if (limit <= 0 || typeof limit !== "string") {
+      res.sendStatus(422);
     }
 
-    res.status(200).send(messagesCollection.to, messagesCollection.text, messagesCollection.type, messagesCollection.from).limit(limit).toArray();
-    
+    res
+      .status(200)
+      .send(
+        mensagensArray.to,
+        mensagensArray.text,
+        mensagensArray.type,
+        mensagensArray.from
+      );
+      
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
