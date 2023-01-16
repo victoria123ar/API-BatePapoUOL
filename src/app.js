@@ -63,7 +63,7 @@ app.post("/participants", async (req, res) => {
     await messagesCollection.insertOne({
       from: name,
       to: "Todos",
-      text: "entrei na sala...",
+      text: "entra na sala...",
       type: "status",
       time: dayjs().format("HH:mm:ss"),
     });
@@ -107,6 +107,9 @@ app.post("/messages", async (req, res) => {
       const errors = error.details.map((detail) => detail.message);
       return res.status(422).send(errors);
     }
+    if(!user){
+      res.sendStatus(422);
+    }
 
     await messagesCollection.insertOne(mensagem);
 
@@ -137,7 +140,8 @@ app.get("/messages", async (req, res) => {
       return res.status(404).send("Não foi encontrada nenhuma mensagem!");
     }
 
-    res.send(mensagens);
+    res.status(200).send(mensagens);
+    
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
