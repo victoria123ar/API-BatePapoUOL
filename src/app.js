@@ -93,10 +93,11 @@ app.post("/messages", async (req, res) => {
   const { to, text, type } = req.body;
   const { user } = req.headers;
   const mensagem = {
+    from: user,
     to,
     text,
     type,
-    from,
+    time: dayjs().format("HH:mm:ss"),
   };
 
   try {
@@ -140,10 +141,10 @@ app.get("/messages", async (req, res) => {
     }
 
     if(limit <=0){
-      res.sendStatus(422);
+      res.sendStatus(422)
     }
 
-    res.status(200).send(mensagens);
+    res.status(200).send(mensagens.to, mensagens.text, mensagens.type, mensagens.from);
     
   } catch (err) {
     console.log(err);
