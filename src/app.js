@@ -93,11 +93,10 @@ app.post("/messages", async (req, res) => {
   const { to, text, type } = req.body;
   const { user } = req.headers;
   const mensagem = {
-    from: user,
     to,
     text,
     type,
-    time: dayjs().format("HH:mm:ss"),
+    from,
   };
 
   try {
@@ -107,7 +106,7 @@ app.post("/messages", async (req, res) => {
       const errors = error.details.map((detail) => detail.message);
       return res.status(422).send(errors);
     }
-    if(!user){
+    if(!user === messagesCollection){
       res.sendStatus(422);
     }
 
@@ -128,16 +127,20 @@ app.get("/messages", async (req, res) => {
     const mensagens = await messagesCollection
       .find({
         $or: [
-          { from: user },
           { to: { $in: [user, "Todos"] } },
           { type: "message" },
+          { from: user },
         ],
       })
       .limit(limit)
       .toArray();
 
     if (mensagens.length === 0) {
-      return res.status(404).send("Não foi encontrada nenhuma mensagem!");
+      return res.status(404).send("Nenhuma mensagem encontrada");
+    }
+
+    if(limit <=0){
+      res.sendStatus(422);
     }
 
     res.status(200).send(mensagens);
