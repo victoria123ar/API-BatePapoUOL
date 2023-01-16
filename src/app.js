@@ -127,14 +127,25 @@ app.post("/messages", async (req, res) => {
 app.get("/messages", async (req, res) => {
   try {
     const { user } = req.headers;
+
+    let mensagens;
+    let existeLimite = true;
+
+    if(!req.query.limit)
+    {
+      existeLimite = false
+    }
+
     const limit = Number(req.query.limit);
 
-    if(limit <= 0 || typeof limit == "string" || !limit)
+    if(limit <= 0 || typeof limit == "string" )
     {
       return res.sendStatus(422)
     }
 
-    const mensagens = await messagesCollection
+    if(existeLimite)
+    {
+      mensagens = await messagesCollection
       .find({
         $or: [
           { to: "Todos" },
@@ -142,23 +153,35 @@ app.get("/messages", async (req, res) => {
           { from: user },
         ]
       }) 
-      .limit(limit) 
+      .limit(limit)
       .toArray();
+    }
+    else
+    {
+      mensagens = await messagesCollection
+      .find({
+        $or: [
+          { to: "Todos" },
+          { to: user },
+          { from: user },
+        ]
+      })
+      .toArray();
+    }
 
-      if (mensagens.length === 0) 
-      {
-        return res.status(404).send("Nenhuma mensagem encontrada");
-      }
+    if (mensagens.length === 0) 
+    {
+      return res.status(404).send("Nenhuma mensagem encontrada");
+    }
 
-     let retorno = []
-     mensagens.forEach(el =>
-     {
-        retorno.push({ to: el.to, text: el.text, type: el.type, from: el.from })
-     });
+    let retorno = []
+    mensagens.forEach(el =>
+    {
+      retorno.push({ to: el.to, text: el.text, type: el.type, from: el.from })
+    });
 
      //retorno.forEach(el =>{console.log(el)});
-     
-    
+
     return res.status(200).send(JSON.stringify(retorno));
     
   } catch (err) 
