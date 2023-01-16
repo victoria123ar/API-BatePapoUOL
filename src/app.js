@@ -124,6 +124,10 @@ app.get("/messages", async (req, res) => {
   const { user } = req.headers;
   const limit = Number(req.query.limit);
 
+  if (limit <= 0 || typeof limit !== "string") {
+    return res.sendStatus(422);
+  }
+
   try {
     const mensagens = await db.collection('messages')
       .find({
@@ -138,10 +142,6 @@ app.get("/messages", async (req, res) => {
 
     if (mensagens.length === 0) {
       return res.status(404).send("Nenhuma mensagem encontrada");
-    }
-
-    if (limit <= 0 || typeof limit !== "string") {
-      res.sendStatus(422);
     }
 
     res
