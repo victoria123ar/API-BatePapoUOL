@@ -54,8 +54,7 @@ app.post("/participants", async (req, res) => {
     const participanteExistente = await participantsCollection.findOne({
       name,
     });
-    if (participanteExistente) 
-    {
+    if (participanteExistente) {
       return res.sendStatus(409);
     }
 
@@ -109,9 +108,10 @@ app.post("/messages", async (req, res) => {
       return res.status(422).send(errors);
     }
 
-    const QtdDocuments = await participantsCollection.countDocuments({ name: user });
-    if(QtdDocuments == 0)
-    {
+    const QtdDocuments = await participantsCollection.countDocuments({
+      name: user,
+    });
+    if (QtdDocuments == 0) {
       res.sendStatus(422);
     }
 
@@ -131,14 +131,13 @@ app.get("/messages", async (req, res) => {
     let mensagens;
     let existeLimite = true;
 
-    if(!req.query.limit)
-    {
-      existeLimite = false
+    if (!req.query.limit) {
+      existeLimite = false;
     }
 
     const limit = Number(req.query.limit);
 
-    if(limit <= 0 || limit === NaN )
+    /*if(limit <= 0 || limit === NaN )
     {
       return res.sendStatus(422)
     }
@@ -167,29 +166,49 @@ app.get("/messages", async (req, res) => {
         ]
       })
       .toArray();
+    }*/
+
+    if (!existeLimite) {
+      mensagens = await messagesCollection
+        .find({
+          $or: [{ to: "Todos" }, { to: user }, { from: user }],
+        })
+        .toArray();
     }
 
-    if (mensagens.length === 0) 
-    {
+    else if (limit > 0 && parseInt(limit) !== "NaN") {
+      mensagens = await messagesCollection
+        .find({
+          $or: [{ to: "Todos" }, { to: user }, { from: user }],
+        })
+        .limit(limit)
+        .toArray();
+    } else {
+      return res.sendStatus(422);
+    }
+
+    if (mensagens.length === 0) {
       return res.status(404).send("Nenhuma mensagem encontrada");
     }
 
-    let retorno = []
-    mensagens.reverse().forEach(el =>
-    {
-      retorno.push({ to: el.to, text: el.text, type: el.type, from: el.from, time: el.time })
+    let retorno = [];
+    mensagens.reverse().forEach((el) => {
+      retorno.push({
+        to: el.to,
+        text: el.text,
+        type: el.type,
+        from: el.from,
+        time: el.time,
+      });
     });
 
-     //retorno.forEach(el =>{console.log(el)});
+    //retorno.forEach(el =>{console.log(el)});
 
-    return res.status(200).send(JSON.stringify(retorno));
-    
-  } catch (err) 
-  {
+    res.status(200).send(JSON.stringify(retorno));
+  } catch (err) {
     console.log(err);
-    return res.sendStatus(500);
+    res.sendStatus(500);
   }
-
 });
 
 app.post("/status", async (req, res) => {
